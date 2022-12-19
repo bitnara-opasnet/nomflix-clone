@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { RecoilRoot } from "recoil";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 import App from './App';
+import { QueryClient, QueryClientProvider } from "react-query"
 import { theme } from "./theme";
 
 
@@ -58,8 +59,9 @@ const GlobalStyle = createGlobalStyle`
     body {
         font-weight: 300;
         font-family: 'Source Sans Pro', sans-serif;
-        color:black;
+        color: ${props => props.theme.white.darker};
         line-height: 1.2;
+        background-color: black;
     }
     a {
         text-decoration:none;
@@ -67,16 +69,20 @@ const GlobalStyle = createGlobalStyle`
     }
 `;
 
+const client = new QueryClient();
+
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 root.render(
-    <React.StrictMode>
+    // <React.StrictMode>
         <RecoilRoot>
-            <ThemeProvider theme={theme}>
-                <GlobalStyle />
-                <App />
-            </ThemeProvider>
+            <QueryClientProvider client={client}>
+                <ThemeProvider theme={theme}>
+                    <GlobalStyle />
+                    <App />
+                </ThemeProvider>
+            </QueryClientProvider>
         </RecoilRoot>
-    </React.StrictMode>
+    // </React.StrictMode>
 );
