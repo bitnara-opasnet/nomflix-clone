@@ -1,7 +1,9 @@
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { motion, useAnimation, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+
 
 const Nav = styled(motion.nav)`
     display: flex;
@@ -50,7 +52,7 @@ const Item = styled.li`
     }
 `;
 
-const Search = styled.span`
+const Search = styled.form`
     display: flex;
     align-items: center;
     position: relative;
@@ -109,32 +111,46 @@ const navVariants = {
     },
 };
 
+interface IForm {
+    keyword: string;
+}
+
 
 function Header() {
-    const [searchOpen, setSearchOpen] = useState(false);
-    const homeMatch = useRouteMatch("/");
-    const tvMatch = useRouteMatch("/tv");
-    const inputAnimation = useAnimation();
+    // 네비게이션 스크롤 애니메이션
     const navAnimation = useAnimation();
     const {scrollY} = useScroll();
+    useEffect(() => {
+        scrollY.onChange(() => {
+            if (scrollY.get() > 80) {
+                navAnimation.start("scroll");
+            } else {
+                navAnimation.start("top");
+            }
+        });
+    }, [scrollY, navAnimation]);
+    
+    // 검색창 애니메이션
+    const [searchOpen, setSearchOpen] = useState(false);
+    const inputAnimation = useAnimation();
     const toggleSearch = () => {
         if (searchOpen) {
-          inputAnimation.start({ scaleX: 0 });
+            inputAnimation.start({ scaleX: 0 });
         } else {
-          inputAnimation.start({ scaleX: 1 });
+            inputAnimation.start({ scaleX: 1 });
         }
         setSearchOpen((prev) => !prev);
     };
-    useEffect(() => {
-        scrollY.onChange(() => {
-          if (scrollY.get() > 80) {
-            navAnimation.start("scroll");
-          } else {
-            navAnimation.start("top");
-          }
-        });
-      }, [scrollY, navAnimation]);
-      
+    
+    // url이 일치하면 빨간 원 표시
+    const homeMatch = useRouteMatch("/");
+    const tvMatch = useRouteMatch("/tv");
+
+    // 서치 기능 
+    const { register, handleSubmit } = useForm<IForm>();
+    const history = useHistory();
+    const onValid = (data: IForm) => { history.push(`/search?keyword=${data.keyword}`)};
+    
     return (
         <Nav variants={navVariants} animate={navAnimation} initial={"top"}>
             <Col>
@@ -159,9 +175,9 @@ function Header() {
                 </Items>
             </Col>
             <Col>
-                <Search onClick={toggleSearch}>
+                <Search onSubmit={handleSubmit(onValid)}>
                     <motion.svg
-                        // onClick={toggleSearch}
+                        onClick={toggleSearch}
                         animate={{ x: searchOpen ? -210 : 0 }}
                         // transition={{ type: "linear" }}
                         fill="currentColor"
@@ -179,6 +195,7 @@ function Header() {
                         animate={inputAnimation}
                         initial={{ scaleX: 0 }}
                         placeholder="Search for movie or tv show..."
+                        {...register("keyword", {required: true, minLength: 2})}
                     />
 
                 </Search>

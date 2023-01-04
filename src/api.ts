@@ -8,7 +8,16 @@ interface IMovie {
     poster_path: string;
     title: string;
     overview: string;
-}
+};
+
+
+interface ITvShows {
+    id: number;
+    backdrop_path: string;
+    poster_path: string;
+    name: string;
+    overview: string;
+};
 
 export interface IGetMoviesResult {
     dates: {
@@ -19,11 +28,24 @@ export interface IGetMoviesResult {
     results: IMovie[];
     total_pages: number;
     total_results: number;
-}
+};
 
+
+export interface IGetTvShowsResult {
+    page: number;
+    results: ITvShows[];
+    total_pages: number;
+    total_results: number;
+};
 
 export function getMovies() {
     return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then(
         (response) => response.json()
     );
-}
+};
+
+export function getTvShows() {
+    return fetch(`${BASE_PATH}/tv/popular?api_key=${API_KEY}`).then(
+        (response) => response.json()
+    );
+};
