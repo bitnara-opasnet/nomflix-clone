@@ -12,10 +12,9 @@ const Nav = styled(motion.nav)`
     position: fixed;
     width: 100%;
     top: 0;
-    /* background-color: black; */
     font-size: 14px;
     padding: 20px 60px;
-    color: white;
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
 `;
 
 const Col = styled.div`
@@ -167,10 +166,10 @@ function Header() {
                 </Logo>
                 <Items>
                     <Item>
-                        <Link to="/">Home {homeMatch?.isExact && <Circle layoutId="circle"/>}</Link>
+                        <Link to="/">홈 {homeMatch?.isExact && <Circle layoutId="circle"/>}</Link>
                     </Item>
                     <Item>
-                        <Link to="/tv">Tv Shows {tvMatch && <Circle layoutId="circle" />}</Link>
+                        <Link to="/tv">시리즈 {tvMatch && <Circle layoutId="circle" />}</Link>
                     </Item>
                 </Items>
             </Col>

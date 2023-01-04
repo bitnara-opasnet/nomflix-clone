@@ -10,3 +10,6 @@ npm i react-helmet-async
 npm i --save-dev @types/react-helmet
 npm i recoil
 npm i framer-motion
+npm i react-hook-form
+
+https://hwan0hae.github.io/netflex/

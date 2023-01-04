@@ -19,23 +19,28 @@ const Loader = styled.div`
 `;
 
 const Banner = styled.div<{bgphoto:string}>`
-    height: 100vh;
     display: flex;
-    flex-direction: column;
+    height: 100vh;
     justify-content: center;
-    padding: 60px;
+    flex-direction: column;
+    padding: 6.8rem 6rem;
     background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1)), url(${(props) => props.bgphoto});
     background-size: cover;
+    background-position: center center;
 `;
 
 const Title = styled.h2`
-    font-size: 68px;
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
+    font-size: 4rem;
+    font-weight: 700;
 `;
 
 const OverView = styled.p`
-    font-size: 30px;
-    width: 50%;
+    margin-bottom: 2rem;
+    width: 52.8rem;
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 2.5rem;
 `;
 
 const Slider = styled.div`
@@ -49,6 +54,8 @@ const Row = styled(motion.div)`
     grid-template-columns: repeat(6, 1fr);
     position: absolute;
     width: 100%;
+    padding: 0px 3vw;
+
 `;
 
 const Box = styled(motion.div)<{bgphoto: string}>`
