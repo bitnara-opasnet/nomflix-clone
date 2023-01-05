@@ -5,7 +5,7 @@ import { makeImagePath } from "../utils";
 
 const HomeBanner = styled.div<{bgphoto:string}>`
     display: flex;
-    height: 100vh;
+    height: 90vh;
     justify-content: center;
     flex-direction: column;
     padding: 0 3vw;
@@ -16,15 +16,15 @@ const HomeBanner = styled.div<{bgphoto:string}>`
 
 const Title = styled.h2`
     margin-bottom: 2rem;
-    font-size: 4.5vw;
-    font-weight: 700;
+    font-size: 1.9vw;
+    font-weight: 600;
 `;
 
 const OverView = styled.p`
     margin-bottom: 20px;
     width: 40rem;
-    font-size: 1.4vw;
-    font-weight: 500;
+    font-size: 1.2vw;
+    font-weight: 400;
     line-height: 2rem;
 `;
 
@@ -32,7 +32,7 @@ const OverView = styled.p`
 function Banner({program}: {program: IProgram}) {
     return (
         <HomeBanner bgphoto={makeImagePath(program?.backdrop_path || "")}>
-            <Title>{program.title}</Title>
+            <Title>{program.title || program.name}</Title>
             <OverView>{program.overview}</OverView>
         </HomeBanner>
     );

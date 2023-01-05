@@ -13,3 +13,4 @@ npm i framer-motion
 npm i react-hook-form
 
 https://hwan0hae.github.io/netflex/
+https://developers.themoviedb.org/3/
