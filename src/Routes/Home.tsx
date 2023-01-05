@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useQuery } from "react-query";
-import { getMovies, IGetMovies, IProgram } from "../api";
+import { getMovies, IGetMovies, IGetMoviesResult, IProgram } from "../api";
 import Banner from "../Components/Banner";
 import { Slider } from "../Components/Slider";
 
@@ -36,12 +36,14 @@ function Home() {
                         title="현재 상영중인 영화"
                         data={data?.playing_movie.results as IProgram[]}
                         rowIndex={0}
+                        current = "now_playing"
                     />
                     <Slider 
                         category="movie"
                         title="현재 인기있는 영화"
                         data={data?.popular_movie.results as IProgram[]}
                         rowIndex={1}
+                        current = "popular"
 
                     />
                 </>

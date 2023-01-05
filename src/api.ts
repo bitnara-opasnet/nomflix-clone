@@ -56,11 +56,6 @@ export async function getMovies() {
     return results
 };
 
-// export function getTvShows() {
-//     return fetch(`${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-KO&region=KR`).then(
-//         (response) => response.json()
-//     );
-// };
 
 export async function getTvShows() {
     const results = {} as IGetTvShows;
@@ -73,4 +68,14 @@ export async function getTvShows() {
     );
     results.popular_tv = popularTvShows.data;
     return results
+};
+
+interface IDetail {
+    category: string;
+    programId: number;
+}
+
+export function getDetail({category, programId}: IDetail) {
+    const response = `${BASE_PATH}/${category}/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`
+    return response
 };

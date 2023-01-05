@@ -38,6 +38,7 @@ function Tv() {
                         title="인기 시리즈"
                         data={data?.popular_tv.results as IProgram[]}
                         rowIndex={0}
+                        current = "popular"
                     />
 
                 </>

@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { IProgram } from "../api";
+import { IProgram, getDetail } from "../api";
 import { makeImagePath, useWindowDimensions } from "../utils";
 
 const SliderWrapper = styled.div`
@@ -13,7 +13,10 @@ const SliderWrapper = styled.div`
         button {
             opacity: 1;
         }
-    }
+    };
+    @media screen and (max-width: 500px) {
+        margin-bottom: 13vw;
+    };
 `;
 
 const RowTitle = styled.div`
@@ -23,6 +26,9 @@ const RowTitle = styled.div`
     font-weight: 500;
     line-height: 2.5rem;
     padding-left: 3vw;
+    @media screen and (max-width: 500px) {
+        margin-bottom: 7px;
+    };
 `
 
 const Row = styled(motion.div)`
@@ -41,17 +47,12 @@ const Box = styled(motion.div)<{bgphoto: string}>`
     background-size: cover;
     background-position: center center;
     cursor: pointer;
-
-    &:first-child {
-        transform-origin: center left;
-    };
-    &:last-child {
-        transform-origin: center right;
-    };
+    &:first-child { transform-origin: center left; };
+    &:last-child { transform-origin: center right;};
 `;
 
 
-const Info = styled(motion.div)`
+const BoxTitle = styled(motion.div)`
     padding: 10px;
     opacity: 0;
     position: absolute;
@@ -73,21 +74,22 @@ const Overlay = styled(motion.div)`
     opacity: 0;
 `;
 
-const BigMovie = styled(motion.div)<{ scrolly: number}>`
-    position: absolute;
+const InfoWrappe = styled(motion.div)`
+    position: fixed;
     width: 40vw;
     height: 80vh;
-    margin: 0 auto;
+    top: 100px;
     left: 0;
     right: 0;
-    top: ${(props) => props.scrolly + 200}px;
+    margin: 0 auto;
+    background-color: ${props => props.theme.black.lighter};
     border-radius: 15px;
-    overflow: hidden;
-    background-color: ${(props) => props.theme.black.lighter};
+    overflow-x: hidden;
+    z-index: 101;
 `;
 
 
-const BigCover = styled.div<{bgphoto: string}>`
+const InfoCover = styled.div<{bgphoto: string}>`
     width: 100%;
     height: 400px;
     background-image: linear-gradient(to top, black, transparent), url(${(props) => props.bgphoto});
@@ -95,7 +97,7 @@ const BigCover = styled.div<{bgphoto: string}>`
     background-position: center center;
 `;
 
-const BigTitle = styled.h3`
+const InfoTitle = styled.h3`
     color: ${(props) => props.theme.white.lighter};
     padding: 20px;
     font-size: 46px;
@@ -103,7 +105,7 @@ const BigTitle = styled.h3`
     top: -80px;
 `;
 
-const BigOverview = styled.p`
+const InfoOverview = styled.p`
     padding: 20px;
     position: relative;
     top: -80px;
@@ -138,6 +140,7 @@ const rowVariants = {
     entry: ({ next, width }: { next: boolean; width: number }) => {
         return {
             x: next ? width : -width,
+            transition: { duration: 1 },
         };
     },
     exit: ({ next, width }: { next: boolean; width: number }) => {
@@ -186,13 +189,24 @@ export interface ISliderProps {
     title: string;
     category: string;
     rowIndex: number;
+    current: string;
 };
 
 const offset = 6; 
 
-export function Slider({data, title, category, rowIndex}: ISliderProps) {
+const detaultDetail = {
+    tagline: "",
+    genres: [],
+    homepage: "",
+    vote_average: 0,
+    vote_count: 0
+}
+
+export function Slider({data, title, category, rowIndex, current}: ISliderProps) {
+
     // index 확인 후 페이지 설정
     const width = useWindowDimensions();
+    const [detail, setDetail] = useState(detaultDetail);
     const [index, setIndex] = useState([0, 0]);
     const [leaving, setLeaving] = useState(false);
     const [next, setNext] = useState<Boolean>(true);
@@ -223,11 +237,15 @@ export function Slider({data, title, category, rowIndex}: ISliderProps) {
     // slider에서 box 클릭 시 동작
     // url 변경
     const history = useHistory();
-    const bigProgramMatch = useRouteMatch<{ programId: string }>(`/${category}/:programId`);
-    const onBoxClicked = (programId:number) => { history.push(`/${category}/${programId}`) };
+    const bigProgramMatch = useRouteMatch<{ programId: string }>(`/${category}/${current}/:programId`);
+    const onBoxClicked = (programId:number) => { 
+        history.push(`/${category}/${current}/${programId}`);
+        const detailUrl = getDetail({category: category, programId: programId});
+        fetch(detailUrl)
+        .then(response => response.json())
+        .then(responseData => { setDetail(responseData); });
+    };
     const onOverlayClick = () => category === "movie" ? history.push("/") : history.push("/tv");
-    // 현재 화면 크기
-    const { scrollY } = useScroll();
     // detail program 정보 찾기
     const clickedProgram = (bigProgramMatch?.params.programId) && data.find((program) => String(program.id) === String(bigProgramMatch?.params.programId));
     return (
@@ -244,22 +262,7 @@ export function Slider({data, title, category, rowIndex}: ISliderProps) {
                         exit="exit"
                         transition={{ type: "tween", duration: 1 }}
                     >
-                        {/* {rowIndex === 0 ? (
-                           <>
-                           {data.slice(1).slice(offset*index[rowIndex], offset*index[rowIndex]+offset).map((program) => (
-                            <Box key={program.id}
-                                bgphoto={program.backdrop_path ? makeImagePath(program.backdrop_path, "w500") : makeImagePath(program.poster_path, "w500")}
-                                variants={boxVariants}
-                                whileHover="hover"
-                                initial="normal"
-                                onClick={() => onBoxClicked(program.id)}
-                                layoutId = {String(program.id)}
-                                >
-                                <Info variants={infoVariants}><h4>{program.title}</h4></Info>
-                            </Box>
-                           )}
-                           </>
-                        ) : null} */}
+
                         {data.slice(1).slice(offset*index[rowIndex], offset*index[rowIndex]+offset).map((program) => (
                             <Box key={program.id}
                                 bgphoto={program.backdrop_path ? makeImagePath(program.backdrop_path, "w500") : makeImagePath(program.poster_path, "w500")}
@@ -267,11 +270,11 @@ export function Slider({data, title, category, rowIndex}: ISliderProps) {
                                 whileHover="hover"
                                 initial="normal"
                                 onClick={() => onBoxClicked(program.id)}
-                                layoutId = {String(rowIndex + "_" + program.id)}
+                                layoutId = {current + program.id}
                             >
-                                <Info variants={infoVariants}>
+                                <BoxTitle variants={infoVariants}>
                                     <h4>{program.title || program.name}</h4>
-                                </Info>
+                                </BoxTitle>
                             </Box>
                         ))}
                         
@@ -305,24 +308,23 @@ export function Slider({data, title, category, rowIndex}: ISliderProps) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                         />
-                        <BigMovie
-                            layoutId = {String(rowIndex + "_" + bigProgramMatch.params.programId)}
-                            scrolly={scrollY.get()}
-                        >
+                        <InfoWrappe layoutId = {current + bigProgramMatch.params.programId}>
                             {clickedProgram && (
                                 <>
-                                    <BigCover
+                                    <InfoCover
                                         bgphoto={clickedProgram.backdrop_path ? makeImagePath(clickedProgram.backdrop_path, "w500") : makeImagePath(clickedProgram.poster_path, "w500")}
                                     />
-                                    <BigTitle>{clickedProgram.title || clickedProgram.name}</BigTitle>
-                                    <BigOverview>{clickedProgram.overview}</BigOverview>
+                                    <InfoTitle>{clickedProgram.title || clickedProgram.name}</InfoTitle>
+                                    <InfoOverview>{detail ? detail?.tagline : null}</InfoOverview>
+                                    <InfoOverview>{clickedProgram.overview}</InfoOverview>
                                 </>
                             )}
-                        </BigMovie>
+                        </InfoWrappe>
                     </>
                 ) : null}
             </AnimatePresence>
         </>
     );
 };
+
 
