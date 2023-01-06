@@ -169,7 +169,7 @@ function Header() {
                         <Link to="/">홈 {homeMatch?.isExact && <Circle layoutId="circle"/>}</Link>
                     </Item>
                     <Item>
-                        <Link to="/tv">시리즈 {tvMatch && <Circle layoutId="circle" />}</Link>
+                        <Link to="/tv">TV프로그램 {tvMatch && <Circle layoutId="circle" />}</Link>
                     </Item>
                 </Items>
             </Col>

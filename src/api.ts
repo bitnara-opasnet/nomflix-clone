@@ -36,11 +36,14 @@ export interface IGetTvShowsResult {
 export interface IGetMovies {
     playing_movie: IGetMoviesResult;
     popular_movie: IGetMoviesResult;
+    upcoming_movie: IGetMoviesResult;
+    top_rated_movie: IGetMoviesResult;
 };
 
 export interface IGetTvShows {
-    playing_tv: IGetTvShowsResult;
+    on_the_air_tv: IGetTvShowsResult;
     popular_tv: IGetTvShowsResult;
+    top_rated_tv: IGetTvShowsResult;
 };
 
 export async function getMovies() {
@@ -53,20 +56,32 @@ export async function getMovies() {
         `${BASE_PATH}/movie/popular?api_key=${API_KEY}&language=ko-KR&region=kr`
     );
     results.popular_movie = popularMoives.data;
+    const upcomingMoives = await axios.get(
+        `${BASE_PATH}/movie/upcoming?api_key=${API_KEY}&language=ko-KR&region=kr`
+    );
+    results.upcoming_movie = upcomingMoives.data;
+    const topRatedMoives = await axios.get(
+        `${BASE_PATH}/movie/top_rated?api_key=${API_KEY}&language=ko-KR&region=kr`
+    );
+    results.top_rated_movie = topRatedMoives.data;
     return results
 };
 
 
 export async function getTvShows() {
     const results = {} as IGetTvShows;
-    const playingTvShows = await axios.get(
-        `${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}&language=ko-KR&region=kr`
-    );
-    results.playing_tv = playingTvShows.data;
     const popularTvShows = await axios.get(
         `${BASE_PATH}/tv/popular?api_key=${API_KEY}&language=ko-KR&region=kr`
     );
     results.popular_tv = popularTvShows.data;
+    const onTheAirTvShows = await axios.get(
+        `${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}&language=ko-KR&region=kr`
+    );
+    results.on_the_air_tv = onTheAirTvShows.data;
+    const topRatedTvShows = await axios.get(
+        `${BASE_PATH}/tv/top_rated?api_key=${API_KEY}&language=ko-KR&region=kr`
+    );
+    results.top_rated_tv = topRatedTvShows.data;
     return results
 };
 
@@ -79,3 +94,10 @@ export function getDetail({category, programId}: IDetail) {
     const response = `${BASE_PATH}/${category}/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`
     return response
 };
+
+export function getMovieDetail({ queryKey }: any) {
+    const programId = queryKey[1];
+    return fetch(`${BASE_PATH}/movie/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`).then(
+        (response) => response.json()
+    );
+}

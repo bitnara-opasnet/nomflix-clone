@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useQuery } from "react-query";
-import { getMovies, IGetMovies, IGetMoviesResult, IProgram } from "../api";
+import { getMovies, IGetMovies, IProgram } from "../api";
 import Banner from "../Components/Banner";
 import { Slider } from "../Components/Slider";
 
@@ -44,7 +44,20 @@ function Home() {
                         data={data?.popular_movie.results as IProgram[]}
                         rowIndex={1}
                         current = "popular"
-
+                    />
+                    <Slider 
+                        category="movie"
+                        title="개봉 예정 영화"
+                        data={data?.upcoming_movie.results as IProgram[]}
+                        rowIndex={2}
+                        current = "upcoming"
+                    />
+                    <Slider 
+                        category="movie"
+                        title="평가가 좋은 영화"
+                        data={data?.top_rated_movie.results as IProgram[]}
+                        rowIndex={3}
+                        current = "top_rated"
                     />
                 </>
             )}

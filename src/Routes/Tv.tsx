@@ -35,12 +35,25 @@ function Tv() {
                     {/* 슬라이더 */}
                     <Slider 
                         category="tv"
-                        title="인기 시리즈"
+                        title="인기 TV 프로그램"
                         data={data?.popular_tv.results as IProgram[]}
                         rowIndex={0}
                         current = "popular"
                     />
-
+                    <Slider 
+                        category="tv"
+                        title="평가가 좋은 TV 프로그램"
+                        data={data?.top_rated_tv.results as IProgram[]}
+                        rowIndex={1}
+                        current = "top_rated"
+                    />
+                    <Slider 
+                        category="tv"
+                        title="방영중인 TV 프로그램"
+                        data={data?.on_the_air_tv.results as IProgram[]}
+                        rowIndex={2}
+                        current = "on_the_air"
+                    />
                 </>
             )}
         </Wrapper>
