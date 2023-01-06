@@ -10,7 +10,7 @@ const Wrapper = styled.div`
     padding-bottom: 200px;
 `;
 
-const Loader = styled.div`
+export const Loader = styled.div`
     height: 20vh;
     display: flex;
     justify-content: center;

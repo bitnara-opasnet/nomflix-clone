@@ -46,6 +46,26 @@ export interface IGetTvShows {
     top_rated_tv: IGetTvShowsResult;
 };
 
+export interface IProgramDetail {
+    name: string;
+    title: string;
+    tagline: string,
+    genres: [{id: number, name: string}],
+    homepage: string,
+    vote_average: number,
+    vote_count: number,
+    runtime: number,
+    release_date: string,
+    episode_run_time: number,
+    seasons: [{id: number, name: string, air_date: string, episode_count: number}],
+    first_air_date: string,
+    backdrop_path: string;
+    poster_path: string;
+    overview: string;
+};
+
+
+
 export async function getMovies() {
     const results = {} as IGetMovies;
     const playingMoives = await axios.get(
@@ -85,19 +105,9 @@ export async function getTvShows() {
     return results
 };
 
-interface IDetail {
-    category: string;
-    programId: number;
-}
 
-export function getDetail({category, programId}: IDetail) {
-    const response = `${BASE_PATH}/${category}/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`
-    return response
-};
-
-export function getMovieDetail({ queryKey }: any) {
-    const programId = queryKey[1];
-    return fetch(`${BASE_PATH}/movie/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`).then(
+export function getMovieDetail(programId: number, category: string) {
+    return fetch(`${BASE_PATH}/${category}/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`).then(
         (response) => response.json()
     );
-}
+};

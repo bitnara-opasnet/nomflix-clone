@@ -1,4 +1,9 @@
+import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import styled from "styled-components";
+import { getMovieDetail, IProgramDetail } from "../api";
+import { Loader } from "../Routes/Home";
+import { makeImagePath } from "../utils";
 
 const InfoCover = styled.div<{bgphoto: string}>`
     width: 100%;
@@ -113,6 +118,16 @@ const InfoVote = styled.div`
     }
 `;
 
+const StarRateWrap = styled.div`
+    display: flex;
+    align-items: center;
+    .star_icon {
+        display: inline-flex;
+        margin-right: 5px;
+    }
+      
+`
+
 
 const InfoOverview = styled.p`
     padding: 20px;
@@ -121,8 +136,151 @@ const InfoOverview = styled.p`
     color: ${(props) => props.theme.white.lighter};
 `;
 
-function Info() {
-    return null;
+
+
+function Info({programId, category}: {programId: number, category: string}) {
+    const {data, isLoading} = useQuery<IProgramDetail>(
+        ["detail"], 
+        () => getMovieDetail(programId, category)
+    );
+
+    function InfoStarRate(rate: number) {
+        const AVR_RATE = rate * 10; 
+        const STAR_IDX_ARR = ["first", "second", "third", "fourth", "last"]; 
+        const [ratesResArr, setRatesResArr] = useState([0, 0, 0, 0, 0]); 
+        const calcStarRates = () => {
+            let tempStarRatesArr = [0, 0, 0, 0, 0]; 
+            let starVerScore = (AVR_RATE * 70) / 100;
+            let idx = 0;
+            while (starVerScore > 14) {
+                tempStarRatesArr[idx] = 14;
+                idx += 1; 
+                starVerScore -= 14;
+            }
+            tempStarRatesArr[idx] = starVerScore;
+            return tempStarRatesArr;
+        };
+        useEffect(() => {
+            setRatesResArr(calcStarRates);
+        }, []);
+
+        return (
+            <StarRateWrap>
+                {STAR_IDX_ARR.map((item, idx) => {
+                    return (
+                        <span className="star_icon" key={`${item}_${idx}`}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="2vw"
+                                height="39"
+                                viewBox="0 0 14 13"
+                                fill="#cacaca"
+                            >
+                                <clipPath id={`${item}StarClip`}>
+                                    <rect width={`${ratesResArr[idx]}`} height="39" />
+                                </clipPath>
+                                <path
+                                    id={`${item}Star`}
+                                    d="M9,2l2.163,4.279L16,6.969,12.5,10.3l.826,4.7L9,12.779,4.674,15,5.5,10.3,2,6.969l4.837-.69Z"
+                                    transform="translate(-2 -2)"
+                                />
+                                <use
+                                    clipPath={`url(#${item}StarClip)`}
+                                    href={`#${item}Star`}
+                                    fill="#ffd400"
+                                />
+                            </svg>
+                        </span>
+                    );
+                })}
+            </StarRateWrap>
+        );
+    };
+
+    function bigProgramInfo() {
+        if (data && category === "movie") {
+            return (
+                <>
+                <InfoCover
+                    bgphoto={data.backdrop_path ? makeImagePath(data.backdrop_path, "w500") : makeImagePath(data.poster_path, "w500")}
+                />
+                <InfoTitle>{data.title}</InfoTitle>
+                <InfoTagline>{data.tagline}</InfoTagline>
+                <InfoGenres>
+                    <ul>
+                    <li>장르: </li>
+                    {data.genres.map((genere) => (
+                        <li key={genere.id}>{genere.name}</li>
+                    ))}
+                    </ul>
+                </InfoGenres>
+                <InfoTime>
+                    개봉일: <span>{data.release_date}</span>
+                    <br />
+                    상영시간: <span>{data.runtime} 분</span>
+                </InfoTime>
+                <InfoVote>
+                    {InfoStarRate(data.vote_average)}
+                    <span style={{ marginTop: "3px", marginRight: "10px" }}>
+                        {data.vote_average?.toFixed(1)}
+                    </span>
+                    <span style={{ marginTop: "3px" }}>
+                        ({data.vote_count?.toLocaleString("ko-KR")}명이 투표함)
+                    </span>
+                </InfoVote>
+                <InfoOverview>{data.overview}</InfoOverview>
+                </>                
+            )
+        } else if (data && category === "tv") {
+            return (
+                <>
+                <InfoCover
+                    bgphoto={data.backdrop_path ? makeImagePath(data.backdrop_path, "w500") : makeImagePath(data.poster_path, "w500")}
+                />
+                <InfoTitle>{data.name}</InfoTitle>
+                <InfoSeasons>
+                    <ul>
+                    {data.seasons.map((season) => (
+                        <li key={season.id}>{season.name}({season.episode_count})</li>
+                    ))}
+                    </ul>
+                </InfoSeasons>
+                <InfoTagline>{data.tagline}</InfoTagline>
+                <InfoGenres>
+                    <ul>
+                        <li>장르: </li>
+                    {data.genres.map((genere) => (
+                        <li key={genere.id}>{genere.name}</li>
+                    ))}
+                    </ul>
+                </InfoGenres>
+                <InfoTime>
+                    첫방송 날짜: <span>{data.first_air_date}</span>
+                    <br />
+                    방송상영시간: <span>{data.episode_run_time} 분</span>
+                </InfoTime>
+                <InfoVote>
+                    {InfoStarRate(data.vote_average as number)}
+                    <span style={{ marginTop: "3px", marginRight: "10px" }}>
+                        {data.vote_average?.toFixed(1)}
+                    </span>
+                    <span style={{ marginTop: "3px" }}>
+                        ({data.vote_count?.toLocaleString("ko-KR")}명이 투표함)
+                    </span>
+                </InfoVote>
+                <InfoOverview>{data.overview}</InfoOverview>
+                </> 
+            )
+        };
+    };
+
+    return (<>
+        {isLoading ? (
+            <Loader>Loading..</Loader>
+        ) : (    
+            <>{bigProgramInfo()}</>
+        )}
+    </>);
 };
 
 export default Info;

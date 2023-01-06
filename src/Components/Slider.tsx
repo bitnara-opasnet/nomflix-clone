@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { IProgram, getDetail } from "../api";
+import { IProgram } from "../api";
 import { makeImagePath, useWindowDimensions } from "../utils";
+import Info from "./Info";
 
 const SliderWrapper = styled.div`
     position: relative;
@@ -74,7 +75,7 @@ const Overlay = styled(motion.div)`
     opacity: 0;
 `;
 
-const InfoWrappe = styled(motion.div)`
+const InfoWrapper = styled(motion.div)`
     position: fixed;
     width: 40vw;
     height: 80vh;
@@ -87,129 +88,6 @@ const InfoWrappe = styled(motion.div)`
     overflow-x: hidden;
     z-index: 101;
 `;
-
-
-const InfoCover = styled.div<{bgphoto: string}>`
-    width: 100%;
-    height: 400px;
-    background-image: linear-gradient(to top, black, transparent), url(${(props) => props.bgphoto});
-    background-size: cover;
-    background-position: center center;
-`;
-
-const InfoTitle = styled.h3`
-    color: ${(props) => props.theme.white.lighter};
-    padding: 20px;
-    font-size: 46px;
-    position: relative;
-    top: -80px;
-`;
-
-const InfoTagline = styled.h5`
-    color: ${(props) => props.theme.white.lighter};
-    padding: 20px;
-    position: relative;
-    margin-bottom: 3px;
-    font-size: 30px;
-    top: -100px;
-`;
-
-const InfoGenres = styled.div`
-    font-size: 1em;
-    top: -100px;
-    position: relative;
-    padding: 20px;
-
-    ul {
-        li {
-        border-radius: 3px;
-        padding: 1px;
-        color: ${(props) => props.theme.white.lighter};
-        background-color: ${(props) => props.theme.black.lighter};
-        float: left;
-        margin-right: 4px;
-        margin-bottom: 3px;
-        }
-    }
-
-    @media screen and (max-width: 500px) {
-        font-size: 0.5em;
-    }
-`;
-
-
-const InfoSeasons = styled.div`
-    font-size: 1em;
-    top: -100px;
-    position: relative;
-    padding: 20px;
-
-    ul {
-        li {
-        border-radius: 3px;
-        padding: 1px;
-        color: ${(props) => props.theme.white.lighter};
-        background-color: ${(props) => props.theme.black.lighter};
-        float: left;
-        margin-right: 4px;
-        margin-bottom: 3px;
-        &:hover {
-            filter: brightness(1.5);
-        }
-        }
-    }
-
-    @media screen and (max-width: 500px) {
-        font-size: 0.5em;
-    }
-`;
-
-const InfoTime = styled.div`
-    position: relative;
-    font-size: 0.8em;
-    top: -110px;
-    padding: 20px;
-
-    span {
-        color: ${(props) => props.theme.white.lighter};
-    }
-
-    @media screen and (max-width: 500px) {
-        font-size: 0.4em;
-    }
-`;
-
-const InfoVote = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    position: relative;
-    top: -150px;
-    padding: 20px;
-
-    span:nth-of-type(1) {
-        font-size: 2.3vw;
-        color: #ffd400;
-        font-weight: 400;
-    }
-    span:last-of-type {
-        font-size: 1.3vw;
-        font-weight: 400;
-    }
-
-    @media screen and (max-width: 500px) {
-        margin: -10px 0 -5px 0;
-    }
-`;
-
-
-const InfoOverview = styled.p`
-    padding: 20px;
-    position: relative;
-    top: -200px;
-    color: ${(props) => props.theme.white.lighter};
-`;
-
 
 const NextBtn = styled(motion.button)`
     background-color: rgba(0, 0, 0, 0.3);
@@ -292,24 +170,9 @@ export interface ISliderProps {
 
 const offset = 6; 
 
-const DetaultDetail = {
-    tagline: "",
-    genres: [{id: 0, name: ""}],
-    homepage: "",
-    vote_average: 0,
-    vote_count: 0,
-    runtime: 0,
-    release_date: "",
-    episode_run_time: 0,
-    seasons: [{id: 0, name: "", air_date: "", episode_count: 0}],
-    first_air_date: ""
-};
-
-
 export function Slider({data, title, category, rowIndex, current}: ISliderProps) {
     // index 확인 후 페이지 설정
     const width = useWindowDimensions();
-    const [detail, setDetail] = useState(DetaultDetail);
     const [index, setIndex] = useState([0, 0, 0, 0]);
     const [leaving, setLeaving] = useState(false);
     const [next, setNext] = useState<Boolean>(true);
@@ -345,99 +208,6 @@ export function Slider({data, title, category, rowIndex, current}: ISliderProps)
         history.push(`/${category}/${current}/${programId}`);
     };
     const onOverlayClick = () => category === "movie" ? history.push("/") : history.push("/tv");
-    // detail program 정보 찾기
-    const clickedProgram = (bigProgramMatch?.params.programId) && data.find((program) => String(program.id) === String(bigProgramMatch?.params.programId));
-    useEffect(() => {
-        if (bigProgramMatch?.isExact === true) {
-            const detailUrl = getDetail({category: category, programId: +bigProgramMatch?.params.programId});
-            fetch(detailUrl)
-            .then(response => response.json())
-            .then(responseData => { setDetail(responseData); });
-        };
-    }, [clickedProgram]);
-    
-    function bigProgramInfo() {
-        if (clickedProgram && category === "movie") {
-            return (
-                <>
-                <InfoCover
-                    bgphoto={clickedProgram.backdrop_path ? makeImagePath(clickedProgram.backdrop_path, "w500") : makeImagePath(clickedProgram.poster_path, "w500")}
-                />
-                <InfoTitle>{clickedProgram.title || clickedProgram.name}</InfoTitle>
-                {detail ? (
-                    <>
-                        <InfoTagline>{detail.tagline}</InfoTagline>
-                        <InfoGenres>
-                            <ul>
-                            <li>장르: </li>
-                            {detail.genres.map((genere) => (
-                                <li key={genere.id}>{genere.name}</li>
-                            ))}
-                            </ul>
-                        </InfoGenres>
-                        <InfoTime>
-                            개봉일: <span>{detail.release_date}</span>
-                            <br />
-                            상영시간: <span>{detail.runtime} 분</span>
-                        </InfoTime>
-                        <InfoVote>
-                            <span style={{ marginTop: "3px", marginRight: "10px" }}>
-                                {detail.vote_average?.toFixed(1)}
-                            </span>
-                            <span style={{ marginTop: "3px" }}>
-                                ({detail.vote_count?.toLocaleString("ko-KR")}명이 투표함)
-                            </span>
-                        </InfoVote>
-                    </>
-                    ) : null}
-                <InfoOverview>{clickedProgram.overview}</InfoOverview>
-                </>                
-            )
-        } else if (clickedProgram && category === "tv") {
-            return (
-                <>
-                <InfoCover
-                    bgphoto={clickedProgram.backdrop_path ? makeImagePath(clickedProgram.backdrop_path, "w500") : makeImagePath(clickedProgram.poster_path, "w500")}
-                />
-                <InfoTitle>{clickedProgram.title || clickedProgram.name}</InfoTitle>
-                <InfoSeasons>
-                    <ul>
-                    {detail.seasons.map((season) => (
-                        <li key={season.id}>{season.name}({season.episode_count})</li>
-                    ))}
-                    </ul>
-                </InfoSeasons>
-                {detail ? (
-                    <>
-                        <InfoTagline>{detail.tagline}</InfoTagline>
-                        <InfoGenres>
-                            <ul>
-                                <li>장르: </li>
-                            {detail.genres.map((genere) => (
-                                <li key={genere.id}>{genere.name}</li>
-                            ))}
-                            </ul>
-                        </InfoGenres>
-                        <InfoTime>
-                            첫방송 날짜: <span>{detail.first_air_date}</span>
-                            <br />
-                            방송상영시간: <span>{detail.episode_run_time} 분</span>
-                        </InfoTime>
-                        <InfoVote>
-                            <span style={{ marginTop: "3px", marginRight: "10px" }}>
-                                {detail.vote_average?.toFixed(1)}
-                            </span>
-                            <span style={{ marginTop: "3px" }}>
-                                ({detail.vote_count?.toLocaleString("ko-KR")}명이 투표함)
-                            </span>
-                        </InfoVote>
-                    </>
-                    ) : null}
-                <InfoOverview>{clickedProgram.overview}</InfoOverview>
-                </> 
-            )
-        }
-    };
 
     return (
         <>
@@ -518,9 +288,12 @@ export function Slider({data, title, category, rowIndex, current}: ISliderProps)
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                         />
-                        <InfoWrappe layoutId = {current + bigProgramMatch.params.programId}>
-                            {bigProgramInfo()}
-                        </InfoWrappe>
+                        <InfoWrapper layoutId={current + bigProgramMatch.params.programId}>
+                            <Info 
+                                programId={+bigProgramMatch.params.programId}
+                                category={category}
+                            />
+                        </InfoWrapper>
                     </>
                 ) : null}
             </AnimatePresence>
