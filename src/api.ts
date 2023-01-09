@@ -33,18 +33,6 @@ export interface IGetTvShowsResult {
     total_results: number;
 };
 
-export interface IGetMovies {
-    playing_movie: IGetMoviesResult;
-    popular_movie: IGetMoviesResult;
-    upcoming_movie: IGetMoviesResult;
-    top_rated_movie: IGetMoviesResult;
-};
-
-export interface IGetTvShows {
-    on_the_air_tv: IGetTvShowsResult;
-    popular_tv: IGetTvShowsResult;
-    top_rated_tv: IGetTvShowsResult;
-};
 
 export interface IProgramDetail {
     name: string;
@@ -64,6 +52,42 @@ export interface IProgramDetail {
     overview: string;
 };
 
+
+interface  IGetPeopleResult {
+    page: number;
+    total_pages: number;
+    total_results: number;
+    results: IPeople[]
+}
+
+interface IPeople {
+    id: number;
+    profile_path: string;
+    name: string;
+    popularity: number;
+    known_for_department: string;
+        // known_for: IProgram[];
+}
+
+
+export interface IGetMovies {
+    playing_movie: IGetMoviesResult;
+    popular_movie: IGetMoviesResult;
+    upcoming_movie: IGetMoviesResult;
+    top_rated_movie: IGetMoviesResult;
+};
+
+export interface IGetTvShows {
+    on_the_air_tv: IGetTvShowsResult;
+    popular_tv: IGetTvShowsResult;
+    top_rated_tv: IGetTvShowsResult;
+};
+
+export interface IGetSearchData {
+    search_movies: IGetMoviesResult;
+    search_tvShow: IGetTvShowsResult;
+    search_person: IGetPeopleResult;
+  }
 
 
 export async function getMovies() {
@@ -110,4 +134,21 @@ export function getMovieDetail(programId: number, category: string) {
     return fetch(`${BASE_PATH}/${category}/${programId}?api_key=${API_KEY}&language=ko-KO&region=KR`).then(
         (response) => response.json()
     );
+};
+
+export async function getSearchData(text: string | null) {
+    const searchData = {} as IGetSearchData;
+    const searchMovies = await axios.get(
+      `${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${text}&page=1&include_adult=false&region=kr`
+    );
+    searchData.search_movies = searchMovies.data;
+    const searchTvShow = await axios.get(
+      `${BASE_PATH}/search/tv?api_key=${API_KEY}&language=ko-KR&query=${text}&page=1&include_adult=false&region=kr`
+    );
+    searchData.search_tvShow = searchTvShow.data;
+    const searchPerson = await axios.get(
+        `${BASE_PATH}/search/person?api_key=${API_KEY}&language=ko-KR&query=${text}&page=1&include_adult=false&region=kr`
+      );
+      searchData.search_person = searchPerson.data;
+    return searchData;
 };

@@ -5,7 +5,7 @@ import Banner from "../Components/Banner";
 import { Slider } from "../Components/Slider";
 
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
     background-color: black;
     padding-bottom: 200px;
 `;
