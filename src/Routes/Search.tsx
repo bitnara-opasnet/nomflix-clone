@@ -1,8 +1,11 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { useQuery } from "react-query";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { getSearchData, IGetSearchData } from "../api";
+import Info from "../Components/Info";
+import { InfoWrapper, Overlay } from "../Components/Slider";
 import { makeImagePath } from "../utils";
 import { Loader, Wrapper } from "./Home";
 
@@ -73,12 +76,19 @@ const boxVariants = {
 function Search() {
     const location = useLocation();
     const keyword = new URLSearchParams(location.search).get("keyword");
+    const [category, setCategory] = useState("");
     const { data, isLoading } = useQuery<IGetSearchData>(
         ["search", keyword],
         () => getSearchData(keyword + "")
     );
-    console.log(data?.search_person.results)
-
+    const history = useHistory();
+    const bigProgramMatch = useRouteMatch<{ programId: string }>(`/search?keyword=${keyword}&category=${category}/:programId`);
+    const onBoxClicked = (programId:number) => { 
+        setCategory(category)
+        history.push(`/search?keyword=${keyword}&category=${category}/${programId}`);
+    };
+    const onOverlayClick = () => history.goBack();
+    console.log(bigProgramMatch)
     return (
         <Wrapper>
             {isLoading ? (
@@ -154,6 +164,23 @@ function Search() {
                             ))}
                         </Row>
                     </Container>
+                    <AnimatePresence>
+                        {bigProgramMatch ? (
+                            <>
+                                <Overlay 
+                                    onClick={onOverlayClick}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                />
+                                <InfoWrapper layoutId={category + bigProgramMatch.params.programId}>
+                                    <Info 
+                                        programId={+bigProgramMatch.params.programId}
+                                        category={category}
+                                    />
+                                </InfoWrapper>
+                            </>
+                        ) : null}
+                    </AnimatePresence>
                 </>
             )}
         </Wrapper>

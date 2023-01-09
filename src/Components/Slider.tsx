@@ -66,7 +66,7 @@ const BoxTitle = styled(motion.div)`
     }
 `;
 
-const Overlay = styled(motion.div)`
+export const Overlay = styled(motion.div)`
     position: fixed;
     top: 0;
     width: 100%;
@@ -75,7 +75,7 @@ const Overlay = styled(motion.div)`
     opacity: 0;
 `;
 
-const InfoWrapper = styled(motion.div)`
+export const InfoWrapper = styled(motion.div)`
     position: fixed;
     width: 40vw;
     height: 80vh;

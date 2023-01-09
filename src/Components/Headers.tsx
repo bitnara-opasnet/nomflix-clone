@@ -193,7 +193,7 @@ function Header() {
                         // transition={{ type: "linear" }}
                         animate={inputAnimation}
                         initial={{ scaleX: 0 }}
-                        placeholder="Search for movie or tv show..."
+                        placeholder="키워드를 입력하세요"
                         {...register("keyword", {required: true, minLength: 2})}
                     />
 

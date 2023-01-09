@@ -163,7 +163,6 @@ function Info({programId, category}: {programId: number, category: string}) {
     useEffect(() => {
         setRatesResArr(calcStarRates);
     }, [data]);
-    
     function BigProgramInfo() {
         if (data) {
             if (category === "movie") {
