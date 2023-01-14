@@ -12,5 +12,9 @@ npm i recoil
 npm i framer-motion
 npm i react-hook-form
 
+
+npm i query-string
+
+
 https://hwan0hae.github.io/netflex/
 https://developers.themoviedb.org/3/

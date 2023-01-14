@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.0.9",
     "axios": "^1.2.2",
     "framer-motion": "^7.10.2",
+    "query-string": "^8.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",

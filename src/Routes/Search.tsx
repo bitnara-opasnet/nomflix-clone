@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import queryString from "query-string";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
@@ -75,20 +76,21 @@ const boxVariants = {
 
 function Search() {
     const location = useLocation();
-    const keyword = new URLSearchParams(location.search).get("keyword");
+    const { keyword, id } = queryString.parse(location.search);
+    // const keyword = new URLSearchParams(location.search).get("keyword");
     const [category, setCategory] = useState("");
     const { data, isLoading } = useQuery<IGetSearchData>(
         ["search", keyword],
         () => getSearchData(keyword + "")
     );
     const history = useHistory();
-    const bigProgramMatch = useRouteMatch<{ programId: string }>(`/search?keyword=${keyword}&category=${category}/:programId`);
-    const onBoxClicked = (programId:number) => { 
-        setCategory(category)
-        history.push(`/search?keyword=${keyword}&category=${category}/${programId}`);
+    const onBoxClicked = (programId:number, category: string) => { 
+        setCategory(category);
+        history.push(`/search?keyword=${keyword}&category=${category}&id=${programId}`);
     };
+    const bigProgramMatch = useRouteMatch<{ programId: string }>(`/search?keyword=${keyword}&category=${category}&id=:programId`);
     const onOverlayClick = () => history.goBack();
-    console.log(bigProgramMatch)
+    console.log(id)
     return (
         <Wrapper>
             {isLoading ? (
@@ -106,7 +108,9 @@ function Search() {
                                     variants={boxVariants}
                                     whileHover="hover"
                                     initial="normal"
-                                    layoutId = {"movie_" + movie.id}>
+                                    layoutId = {"movie_" + movie.id}
+                                    onClick={() => onBoxClicked(movie.id, "movie")}
+                                >
                                     {movie.poster_path ? (
                                         <BoxImg src={makeImagePath(movie.poster_path, "w500")} />
                                     ) : (
@@ -130,6 +134,7 @@ function Search() {
                                     whileHover="hover"
                                     initial="normal"
                                     layoutId = {"tv_" + tv.id}
+                                    onClick={() => onBoxClicked(tv.id, "tv")}
                                 >
                                     {tv.poster_path ? (
                                         <BoxImg src={makeImagePath(tv.poster_path, "w500")} />
